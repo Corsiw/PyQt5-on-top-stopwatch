@@ -22,6 +22,8 @@ class TimerWindow(QtWidgets.QMainWindow):
         # setup centralwidget
         self.ui.bot_frame.hide()
         self.isBotFrameShown = False
+        self.setMinimumSize(340, 92)
+        self.resize(340, 142)
         self.prevSize = self.size()
         self.oldPos = None
         self.draggable = True
@@ -76,20 +78,16 @@ class TimerWindow(QtWidgets.QMainWindow):
             if self.isBotFrameShown:
                 self.ui.bot_frame.hide()
 
-            self.ui.up_frame.adjustSize()
-            self.ui.centralwidget.adjustSize()
-            self.adjustSize()
-
-            self.resize(340, 72)
+            self.resize(340, 92)
             self.setWindowOpacity(self.NO_FOCUS_OPACITY)
 
         elif event == "Enter":
             self.ui.button_frame.show()
-            self.resize(self.prevSize)
-            self.setWindowOpacity(self.BASE_OPACITY)
-
             if self.isBotFrameShown:
                 self.ui.bot_frame.show()
+
+            self.resize(self.prevSize)
+            self.setWindowOpacity(self.BASE_OPACITY)
 
     def closeBtnEvent(self):
         self.close()
@@ -156,10 +154,8 @@ class TimerWindow(QtWidgets.QMainWindow):
                 self.isBotFrameShown = False
                 self.ui.bot_frame.hide()
 
-                self.ui.centralwidget.adjustSize()
-                self.adjustSize()
-                self.resize(340, 140)
-                # self.setFixedSize(340, 140)
+                self.resize(340, 142)
+                # self.setFixedSize(340, 142)
 
             else:
                 self.isBotFrameShown = True

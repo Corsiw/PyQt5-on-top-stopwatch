@@ -6,10 +6,11 @@ from mouseoverWidget import MouseoverWidget
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(340, 140)
+        MainWindow.resize(340, 142)
         MainWindow.setWindowOpacity(MainWindow.BASE_OPACITY)
         MainWindow.setStyleSheet(f"background-color: rgb({MainWindow.WINDOW_COLOR});")
         MainWindow.setTabShape(QtWidgets.QTabWidget.Rounded)
+        MainWindow.setWindowIcon(QtGui.QIcon("Icons/main_logo_yellow+blue"))
         MainWindow.setUnifiedTitleAndToolBarOnMac(False)
         MainWindow.setWindowFlags(
             QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.FramelessWindowHint)
