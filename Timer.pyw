@@ -19,7 +19,8 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        # setup centralwidget
+        self.ui.tab2.hide()
+
         self.ui.bot_frame.hide()
         self.isBotFrameShown = False
         self.setMinimumSize(340, 92)
