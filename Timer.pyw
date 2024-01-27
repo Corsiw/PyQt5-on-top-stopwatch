@@ -137,7 +137,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             dTLable.setFont(font)
             dTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
 
-            self.ui.time_layout.insertWidget(0, dTLable)
+            self.ui.time_Layout.insertWidget(0, dTLable)
 
             # allTime
             allTime = str(curFlag)
@@ -147,7 +147,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             aTLable.setFont(font)
             aTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
 
-            self.ui.all_layout.insertWidget(0, aTLable)
+            self.ui.all_Layout.insertWidget(0, aTLable)
 
         elif btn == "Right":
             if self.isBotFrameShown:
@@ -170,12 +170,12 @@ class TimerWindow(QtWidgets.QMainWindow):
 
         self.lastFlag = None
 
-        for i in reversed(range(self.ui.time_layout.count())):
-            timeWidgetToRemove = self.ui.time_layout.itemAt(i).widget()
-            allWidgetToRemove = self.ui.all_layout.itemAt(i).widget()
+        for i in reversed(range(self.ui.time_Layout.count())):
+            timeWidgetToRemove = self.ui.time_Layout.itemAt(i).widget()
+            allWidgetToRemove = self.ui.all_Layout.itemAt(i).widget()
             # remove it from the layout list
-            self.ui.time_layout.removeWidget(timeWidgetToRemove)
-            self.ui.all_layout.removeWidget(allWidgetToRemove)
+            self.ui.time_Layout.removeWidget(timeWidgetToRemove)
+            self.ui.all_Layout.removeWidget(allWidgetToRemove)
             # remove it from the gui
             timeWidgetToRemove.setParent(None)
             allWidgetToRemove.setParent(None)
