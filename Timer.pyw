@@ -34,6 +34,8 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui.centralwidget.mouseoverEvent.connect(lambda event: self.mouseoverEvent(event))
 
         self.ui.tabs[0].nextTab_button.clicked.connect(lambda: self.nextTabBtnEvent())
+        self.ui.tabs[0].prevTab_button.clicked.connect(lambda: self.prevTabBtnEvent())
+        self.ui.tabs[1].nextTab_button.clicked.connect(lambda: self.nextTabBtnEvent())
         self.ui.tabs[1].prevTab_button.clicked.connect(lambda: self.prevTabBtnEvent())
 
         self.ui.tabs[0].close_button.clicked.connect(lambda: self.closeBtnEvent())
@@ -119,8 +121,8 @@ class TimerWindow(QtWidgets.QMainWindow):
 
     def prevTabBtnEvent(self):
         self.ui.tabs[self.curTab].hide()
-        self.curTab = (self.curTab - 1)
-        if self.curTab == -1: self.curTab = len(self.ui.tabs)
+        self.curTab -= 1
+        if self.curTab == -1: self.curTab = len(self.ui.tabs)-1
 
         self.ui.tabs[self.curTab].show()
         if self.isBotFrameShown:
