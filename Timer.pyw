@@ -109,13 +109,25 @@ class TimerWindow(QtWidgets.QMainWindow):
     def nextTabBtnEvent(self):
         self.ui.tabs[self.curTab].hide()
         self.curTab = (self.curTab + 1) % len(self.ui.tabs)
+
         self.ui.tabs[self.curTab].show()
+        if self.isBotFrameShown:
+            self.ui.tabs[self.curTab].bot_frame.show()
+        else:
+            self.ui.tabs[self.curTab].bot_frame.hide()
+            self.isBotFrameShown = False
 
     def prevTabBtnEvent(self):
         self.ui.tabs[self.curTab].hide()
         self.curTab = (self.curTab - 1)
         if self.curTab == -1: self.curTab = len(self.ui.tabs)
+
         self.ui.tabs[self.curTab].show()
+        if self.isBotFrameShown:
+            self.ui.tabs[self.curTab].bot_frame.show()
+        else:
+            self.ui.tabs[self.curTab].bot_frame.hide()
+            self.isBotFrameShown = False
 
     def closeBtnEvent(self):
         self.close()
