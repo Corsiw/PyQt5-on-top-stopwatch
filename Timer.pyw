@@ -19,9 +19,12 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.ui.tab2.hide()
+        for tab in self.ui.tabs:
+            tab.hide()
+        self.curTab = 0
+        self.ui.tabs[self.curTab].show()
 
-        self.ui.bot_frame.hide()
+        self.ui.tabs[self.curTab].bot_frame.hide()
         self.isBotFrameShown = False
         self.setMinimumSize(340, 92)
         self.resize(340, 142)
@@ -30,23 +33,34 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.draggable = True
         self.ui.centralwidget.mouseoverEvent.connect(lambda event: self.mouseoverEvent(event))
 
-        self.ui.close_button.clicked.connect(lambda: self.closeBtnEvent())
-        self.ui.close_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[0].nextTab_button.clicked.connect(lambda: self.nextTabBtnEvent())
 
-        self.ui.minimize_button.clicked.connect(lambda: self.minimizeBtnEvent())
-        self.ui.minimize_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[0].close_button.clicked.connect(lambda: self.closeBtnEvent())
+        self.ui.tabs[0].close_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[1].close_button.clicked.connect(lambda: self.closeBtnEvent())
+        self.ui.tabs[1].close_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.ui.pause_button.clicked.connect(lambda: self.pauseBtnEvent())
-        self.ui.pause_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[0].minimize_button.clicked.connect(lambda: self.minimizeBtnEvent())
+        self.ui.tabs[0].minimize_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[1].minimize_button.clicked.connect(lambda: self.minimizeBtnEvent())
+        self.ui.tabs[1].minimize_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+
+        self.ui.tabs[0].pause_button.clicked.connect(lambda: self.pauseBtnEvent(self.ui.tabs[0].pause_button))
+        self.ui.tabs[0].pause_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[1].pause_button.clicked.connect(lambda: self.pauseBtnEvent(self.ui.tabs[1].pause_button))
+        self.ui.tabs[1].pause_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
         self.lastFlag = None
-        self.ui.flag_button.clickSignal.connect(self.flagClickedSlot)
-        self.ui.flag_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[0].flag_button.clickSignal.connect(self.flagClickedSlot)
+        self.ui.tabs[0].flag_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[1].flag_button.clickSignal.connect(self.flagClickedSlot)
+        self.ui.tabs[1].flag_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.ui.restart_button.clicked.connect(lambda: self.restartBtnEvent())
-        self.ui.restart_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[0].restart_button.clicked.connect(lambda: self.restartBtnEvent())
+        self.ui.tabs[0].restart_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.tabs[1].restart_button.clicked.connect(lambda: self.restartBtnEvent())
+        self.ui.tabs[1].restart_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        # setup timer
         self.timeStarted = None
         self.timePaused = None
         self.isPaused = False
@@ -75,20 +89,25 @@ class TimerWindow(QtWidgets.QMainWindow):
         if event == "Leave":
             self.prevSize = self.size()
 
-            self.ui.button_frame.hide()
+            self.ui.tabs[self.curTab].button_frame.hide()
             if self.isBotFrameShown:
-                self.ui.bot_frame.hide()
+                self.ui.tabs[self.curTab].bot_frame.hide()
 
             self.resize(340, 92)
             self.setWindowOpacity(self.NO_FOCUS_OPACITY)
 
         elif event == "Enter":
-            self.ui.button_frame.show()
+            self.ui.tabs[self.curTab].button_frame.show()
             if self.isBotFrameShown:
-                self.ui.bot_frame.show()
+                self.ui.tabs[self.curTab].bot_frame.show()
 
             self.resize(self.prevSize)
             self.setWindowOpacity(self.BASE_OPACITY)
+
+    def nextTabBtnEvent(self):
+        self.ui.tabs[self.curTab].hide()
+        self.curTab = (self.curTab + 1) % len(self.ui.tabs)
+        self.ui.tabs[self.curTab].show()
 
     def closeBtnEvent(self):
         self.close()
@@ -96,25 +115,25 @@ class TimerWindow(QtWidgets.QMainWindow):
     def minimizeBtnEvent(self):
         self.showMinimized()
 
-    def pauseBtnEvent(self):
+    def pauseBtnEvent(self, btn):
         if self.isPaused:
             pauseTime = datetime.now() - self.timePaused
             self.timeStarted = self.timeStarted + pauseTime
             self.isPaused = False
-            self.ui.pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
+            btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
 
         elif self.timeStarted:
             self.timePaused = datetime.now()
             self.isPaused = True
-            self.ui.pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
+            btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
         else:
             self.timeStarted = datetime.now()
-            self.ui.pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
+            btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
 
     @QtCore.pyqtSlot(str)
-    def flagClickedSlot(self, btn):
-        if btn == "Left":
+    def flagClickedSlot(self, mouseBtnClicked):
+        if mouseBtnClicked == "Left":
             # curFlag
             if self.timeStarted is None:
                 return
@@ -138,7 +157,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             dTLable.setFont(font)
             dTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
 
-            self.ui.time_Layout.insertWidget(0, dTLable)
+            self.ui.tabs[self.curTab].time_Layout.insertWidget(0, dTLable)
 
             # allTime
             allTime = str(curFlag)
@@ -148,12 +167,12 @@ class TimerWindow(QtWidgets.QMainWindow):
             aTLable.setFont(font)
             aTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
 
-            self.ui.all_Layout.insertWidget(0, aTLable)
+            self.ui.tabs[self.curTab].all_Layout.insertWidget(0, aTLable)
 
-        elif btn == "Right":
+        elif mouseBtnClicked == "Right":
             if self.isBotFrameShown:
                 self.isBotFrameShown = False
-                self.ui.bot_frame.hide()
+                self.ui.tabs[self.curTab].bot_frame.hide()
 
                 self.resize(340, 142)
                 # self.setFixedSize(340, 142)
@@ -161,7 +180,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             else:
                 self.isBotFrameShown = True
                 self.resize(340, 300)
-                self.ui.bot_frame.show()
+                self.ui.tabs[self.curTab].bot_frame.show()
 
     def restartBtnEvent(self):
 
@@ -171,26 +190,26 @@ class TimerWindow(QtWidgets.QMainWindow):
 
         self.lastFlag = None
 
-        for i in reversed(range(self.ui.time_Layout.count())):
-            timeWidgetToRemove = self.ui.time_Layout.itemAt(i).widget()
-            allWidgetToRemove = self.ui.all_Layout.itemAt(i).widget()
+        for i in reversed(range(self.ui.tabs[self.curTab].time_Layout.count())):
+            timeWidgetToRemove = self.ui.tabs[self.curTab].time_Layout.itemAt(i).widget()
+            allWidgetToRemove = self.ui.tabs[self.curTab].all_Layout.itemAt(i).widget()
             # remove it from the layout list
-            self.ui.time_Layout.removeWidget(timeWidgetToRemove)
-            self.ui.all_Layout.removeWidget(allWidgetToRemove)
+            self.ui.tabs[self.curTab].time_Layout.removeWidget(timeWidgetToRemove)
+            self.ui.tabs[self.curTab].all_Layout.removeWidget(allWidgetToRemove)
             # remove it from the gui
             timeWidgetToRemove.setParent(None)
             allWidgetToRemove.setParent(None)
 
-        self.ui.pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
+        self.ui.tabs[self.curTab].pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
     def showTime(self):
         if self.isPaused is False:
             if self.timeStarted is None:
-                self.ui.timer.setText(str(timedelta()))
+                self.ui.tabs[self.curTab].timer.setText(str(timedelta()))
             else:
                 t = str(datetime.now() - self.timeStarted)
                 t = t[:t.find(".") + 3]
-                self.ui.timer.setText(t)
+                self.ui.tabs[self.curTab].timer.setText(t)
 
 
 if __name__ == "__main__":
