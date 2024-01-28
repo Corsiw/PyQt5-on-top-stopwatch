@@ -257,8 +257,16 @@ class Ui_MainWindow(object):
         self.tabs[1].timer_frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.tabs[1].timer_frame.setObjectName("timer_frame")
 
-        self.tabs[1].timer_frame_Layout = QtWidgets.QVBoxLayout(self.tabs[1].timer_frame)
+        self.tabs[1].timer_frame_Layout = QtWidgets.QHBoxLayout(self.tabs[1].timer_frame)
         self.tabs[1].timer_frame_Layout.setObjectName("timer_frame_Layout")
+
+        self.tabs[1].prevTab_button = NotDraggableButton(self.tabs[1].timer_frame)
+        self.tabs[1].prevTab_button.setText("")
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap("Icons/left-arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.tabs[1].prevTab_button.setIcon(icon6)
+        self.tabs[1].prevTab_button.setObjectName("nextTub_button")
+        self.tabs[1].timer_frame_Layout.addWidget(self.tabs[1].prevTab_button, 0, QtCore.Qt.AlignLeft)
 
         self.tabs[1].timer = QtWidgets.QLabel(self.tabs[1].timer_frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
@@ -275,7 +283,8 @@ class Ui_MainWindow(object):
         self.tabs[1].timer.setAlignment(QtCore.Qt.AlignCenter)
         self.tabs[1].timer.setObjectName("timer")
 
-        self.tabs[1].timer_frame_Layout.addWidget(self.tabs[1].timer)
+        self.tabs[1].timer_frame_Layout.addWidget(self.tabs[1].timer, 6)
+        self.tabs[1].timer_frame_Layout.addStretch(1)
         self.tabs[1].up_frame_Layout.addWidget(self.tabs[1].timer_frame, 0, QtCore.Qt.AlignTop)
 
         self.tabs[1].button_frame = QtWidgets.QFrame(self.tabs[1].up_frame)
