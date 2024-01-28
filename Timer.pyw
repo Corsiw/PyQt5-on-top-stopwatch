@@ -61,9 +61,10 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui.tabs[1].restart_button.clicked.connect(lambda: self.restartBtnEvent())
         self.ui.tabs[1].restart_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.timeStarted = None
-        self.timePaused = None
-        self.isPaused = False
+        self.timeStarted = [None, None]
+        self.timePaused = [None, None]
+        self.isPaused = [False, False]
+        print(self.timeStarted, self.timePaused, self.isPaused)
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.showTime)
         timer.start(50)
@@ -116,31 +117,31 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.showMinimized()
 
     def pauseBtnEvent(self, btn):
-        if self.isPaused:
-            pauseTime = datetime.now() - self.timePaused
-            self.timeStarted = self.timeStarted + pauseTime
-            self.isPaused = False
+        if self.isPaused[self.curTab]:
+            pauseTime = datetime.now() - self.timePaused[self.curTab]
+            self.timeStarted[self.curTab] = self.timeStarted[self.curTab] + pauseTime
+            self.isPaused[self.curTab] = False
             btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
 
-        elif self.timeStarted:
-            self.timePaused = datetime.now()
-            self.isPaused = True
+        elif self.timeStarted[self.curTab]:
+            self.timePaused[self.curTab] = datetime.now()
+            self.isPaused[self.curTab] = True
             btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
         else:
-            self.timeStarted = datetime.now()
+            self.timeStarted[self.curTab] = datetime.now()
             btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
 
     @QtCore.pyqtSlot(str)
     def flagClickedSlot(self, mouseBtnClicked):
         if mouseBtnClicked == "Left":
             # curFlag
-            if self.timeStarted is None:
+            if self.timeStarted[self.curTab] is None:
                 return
-            if self.isPaused:
-                curFlag = self.timePaused - self.timeStarted
+            if self.isPaused[self.curTab]:
+                curFlag = self.timePaused[self.curTab] - self.timeStarted[self.curTab]
             else:
-                curFlag = datetime.now() - self.timeStarted
+                curFlag = datetime.now() - self.timeStarted[self.curTab]
 
             # deltaTime
             if self.lastFlag is None or self.lastFlag == curFlag:
@@ -184,9 +185,9 @@ class TimerWindow(QtWidgets.QMainWindow):
 
     def restartBtnEvent(self):
 
-        self.timeStarted = None
-        self.timePaused = None
-        self.isPaused = False
+        self.timeStarted[self.curTab] = None
+        self.timePaused[self.curTab] = None
+        self.isPaused[self.curTab] = False
 
         self.lastFlag = None
 
@@ -203,11 +204,11 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui.tabs[self.curTab].pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
     def showTime(self):
-        if self.isPaused is False:
-            if self.timeStarted is None:
+        if self.isPaused[self.curTab] is False:
+            if self.timeStarted[self.curTab] is None:
                 self.ui.tabs[self.curTab].timer.setText(str(timedelta()))
             else:
-                t = str(datetime.now() - self.timeStarted)
+                t = str(datetime.now() - self.timeStarted[self.curTab])
                 t = t[:t.find(".") + 3]
                 self.ui.tabs[self.curTab].timer.setText(t)
 
