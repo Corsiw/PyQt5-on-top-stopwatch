@@ -31,3 +31,21 @@ class FlagButton(NotDraggableButton):
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
             self.clickedSignal.emit("Right")
         super().mouseReleaseEvent(QMouseEvent)
+
+
+class ScrollButton(NotDraggableButton):
+    __releasedSig = QtCore.pyqtSignal()
+    __pressSig = QtCore.pyqtSignal()
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.releasedSignal = self.__releasedSig
+        self.pressSignal = self.__pressSig
+
+    def mouseReleaseEvent(self, QMouseEvent):
+        self.releasedSignal.emit()
+        super().mouseReleaseEvent(QMouseEvent)
+
+    def mousePressEvent(self, QMouseEvent):
+        self.pressSignal.emit()
+        super().mousePressEvent(QMouseEvent)

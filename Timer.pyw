@@ -33,6 +33,9 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.cur_bot_frame = self.ui.bot_frame
         self.cur_timer = self.ui.timer
 
+        self.cur_timer_label = self.ui.hours_label
+        self.cur_timer_increment = 1
+
         self.isBotFrameShown = False
         self.setMinimumSize(340, 94)
         self.resize(340, 142)  # 340, 142
@@ -76,18 +79,32 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui.restart_button_1.clicked.connect(lambda: self.restartBtnEvent(self.ui.pause_button_1))
         self.ui.restart_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.ui.hours_up_button.clicked.connect(lambda: self.timerChoseHoursEvent(self.ui.hours_label, 1))
+        self.isTriggeredOnce = False
+        self.holding_timer = QtCore.QTimer(self)
+        self.holding_timer.timeout.connect(lambda: self.timerUpdate(self.cur_timer_label, self.cur_timer_increment))
+
+        self.ui.hours_up_button.releasedSignal.connect(lambda: self.timerReleaseEvent(self.ui.hours_label, 1))
+        self.ui.hours_up_button.pressSignal.connect(lambda: self.timerStartHoldingEvent(self.ui.hours_label, 1))
         self.ui.hours_up_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.minutes_up_button.clicked.connect(lambda: self.timerChoseEvent(self.ui.minutes_label, 1))
+
+        self.ui.minutes_up_button.releasedSignal.connect(lambda: self.timerReleaseEvent(self.ui.minutes_label, 1))
+        self.ui.minutes_up_button.pressSignal.connect(lambda: self.timerStartHoldingEvent(self.ui.minutes_label, 1))
         self.ui.minutes_up_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.seconds_up_button.clicked.connect(lambda: self.timerChoseEvent(self.ui.seconds_label, 1))
+
+        self.ui.seconds_up_button.releasedSignal.connect(lambda: self.timerReleaseEvent(self.ui.seconds_label, 1))
+        self.ui.seconds_up_button.pressSignal.connect(lambda: self.timerStartHoldingEvent(self.ui.seconds_label, 1))
         self.ui.seconds_up_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.ui.hours_down_button.clicked.connect(lambda: self.timerChoseHoursEvent(self.ui.hours_label, -1))
+        self.ui.hours_down_button.releasedSignal.connect(lambda: self.timerReleaseEvent(self.ui.hours_label, -1))
+        self.ui.hours_down_button.pressSignal.connect(lambda: self.timerStartHoldingEvent(self.ui.hours_label, -1))
         self.ui.hours_down_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.minutes_down_button.clicked.connect(lambda: self.timerChoseEvent(self.ui.minutes_label, -1))
+
+        self.ui.minutes_down_button.releasedSignal.connect(lambda: self.timerReleaseEvent(self.ui.minutes_label, -1))
+        self.ui.minutes_down_button.pressSignal.connect(lambda: self.timerStartHoldingEvent(self.ui.minutes_label, -1))
         self.ui.minutes_down_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.seconds_down_button.clicked.connect(lambda: self.timerChoseEvent(self.ui.seconds_label, -1))
+
+        self.ui.seconds_down_button.releasedSignal.connect(lambda: self.timerReleaseEvent(self.ui.seconds_label, -1))
+        self.ui.seconds_down_button.pressSignal.connect(lambda: self.timerStartHoldingEvent(self.ui.seconds_label, -1))
         self.ui.seconds_down_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
         self.timeStarted = [None, None]
@@ -243,22 +260,35 @@ class TimerWindow(QtWidgets.QMainWindow):
 
         pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
-    def timerChoseHoursEvent(self, label: QLabel, increment: int) -> None:
-        if label.text() == "00" and increment == -1:
-            t = "23"
-        elif label.text() == "23" and increment == 1:
-            t = "00"
-        else:
-            t = f"{int(label.text()) + increment:02d}"
-        label.setText(t)
+    def timerStartHoldingEvent(self, label: QLabel, increment: int) -> None:
+        print("mousePressEvent")
+        self.isTriggeredOnce = False
+        self.cur_timer_label = label
+        self.cur_timer_increment = increment
+        self.holding_timer.start(200)
 
-    def timerChoseEvent(self, label: QLabel, increment: int) -> None:
-        if label.text() == "00" and increment == -1:
-            t = "59"
-        elif label.text() == "59" and increment == 1:
-            t = "00"
+    def timerReleaseEvent(self, label: QLabel, increment: int) -> None:
+        print("mouseReleaseEvent")
+        self.holding_timer.stop()
+        if self.isTriggeredOnce is False:
+            self.timerUpdate(label, increment)
+
+    def timerUpdate(self, label: QLabel, increment: int) -> None:
+        self.isTriggeredOnce = True
+        if "hours" in label.objectName():
+            if label.text() == "00" and increment == -1:
+                t = "23"
+            elif label.text() == "23" and increment == 1:
+                t = "00"
+            else:
+                t = f"{int(label.text()) + increment:02d}"
         else:
-            t = f"{int(label.text()) + increment:02d}"
+            if label.text() == "00" and increment == -1:
+                t = "59"
+            elif label.text() == "59" and increment == 1:
+                t = "00"
+            else:
+                t = f"{int(label.text()) + increment:02d}"
         label.setText(t)
 
     def showTime(self):

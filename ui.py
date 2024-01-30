@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from customButtons import FlagButton, NotDraggableButton
+from customButtons import FlagButton, NotDraggableButton, ScrollButton
 from mouseoverWidget import MouseoverWidget
 
 
@@ -385,7 +385,7 @@ class Ui_MainWindow(object):
         self.hours_frame_layout = QtWidgets.QVBoxLayout(self.hours_frame)
         self.hours_frame_layout.setContentsMargins(0, -1, 0, -1)
         self.hours_frame_layout.setObjectName("hours_frame_layout")
-        self.hours_up_button = NotDraggableButton(self.hours_frame)
+        self.hours_up_button = ScrollButton(self.hours_frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -412,7 +412,7 @@ class Ui_MainWindow(object):
         self.hours_label.setAlignment(QtCore.Qt.AlignCenter)
         self.hours_label.setObjectName("hours_label")
         self.hours_frame_layout.addWidget(self.hours_label)
-        self.hours_down_button = NotDraggableButton(self.hours_frame)
+        self.hours_down_button = ScrollButton(self.hours_frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -450,7 +450,7 @@ class Ui_MainWindow(object):
         self.minutes_frame_layout = QtWidgets.QVBoxLayout(self.minutes_frame)
         self.minutes_frame_layout.setContentsMargins(0, -1, 0, -1)
         self.minutes_frame_layout.setObjectName("minutes_frame_layout")
-        self.minutes_up_button = NotDraggableButton(self.minutes_frame)
+        self.minutes_up_button = ScrollButton(self.minutes_frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -474,7 +474,7 @@ class Ui_MainWindow(object):
         self.minutes_label.setAlignment(QtCore.Qt.AlignCenter)
         self.minutes_label.setObjectName("minutes_label")
         self.minutes_frame_layout.addWidget(self.minutes_label)
-        self.minutes_down_button = NotDraggableButton(self.minutes_frame)
+        self.minutes_down_button = ScrollButton(self.minutes_frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -510,7 +510,7 @@ class Ui_MainWindow(object):
         self.seconds_frame_layout = QtWidgets.QVBoxLayout(self.seconds_frame)
         self.seconds_frame_layout.setContentsMargins(0, -1, 0, -1)
         self.seconds_frame_layout.setObjectName("seconds_frame_layout")
-        self.seconds_up_button = NotDraggableButton(self.seconds_frame)
+        self.seconds_up_button = ScrollButton(self.seconds_frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -535,7 +535,7 @@ class Ui_MainWindow(object):
         self.seconds_label.setAlignment(QtCore.Qt.AlignCenter)
         self.seconds_label.setObjectName("seconds_label")
         self.seconds_frame_layout.addWidget(self.seconds_label, 0, QtCore.Qt.AlignHCenter)
-        self.seconds_down_button = NotDraggableButton(self.seconds_frame)
+        self.seconds_down_button = ScrollButton(self.seconds_frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
