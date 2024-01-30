@@ -1,5 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from datetime import datetime, timedelta
+from PyQt5.QtCore import QEvent, QObject
+from PyQt5.QtWidgets import QFrame, QLabel
 
 from ui import Ui_MainWindow
 from configuration import Configuration
@@ -19,50 +21,74 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        for tab in self.ui.tabs:
-            tab.hide()
-        self.curTab = 0
-        self.ui.tabs[self.curTab].show()
+        self.ui.tab_1.hide()
+        self.ui.tab_0.show()
 
-        self.ui.tabs[self.curTab].bot_frame.hide()
+        self.ui.bot_frame.hide()
+        self.ui.bot_frame_1.hide()
+
+        self.cur_tab_ind = 0
+        self.cur_tab = self.ui.tab_0
+        self.cur_button_frame = self.ui.button_frame
+        self.cur_bot_frame = self.ui.bot_frame
+        self.cur_timer = self.ui.timer
+
         self.isBotFrameShown = False
-        self.setMinimumSize(340, 92)
-        self.resize(340, 142)
+        self.setMinimumSize(340, 94)
+        self.resize(340, 142)  # 340, 142
         self.prevSize = self.size()
         self.oldPos = None
         self.draggable = True
         self.ui.centralwidget.mouseoverEvent.connect(lambda event: self.mouseoverEvent(event))
 
-        self.ui.tabs[0].nextTab_button.clicked.connect(lambda: self.nextTabBtnEvent())
-        self.ui.tabs[0].prevTab_button.clicked.connect(lambda: self.prevTabBtnEvent())
-        self.ui.tabs[1].nextTab_button.clicked.connect(lambda: self.nextTabBtnEvent())
-        self.ui.tabs[1].prevTab_button.clicked.connect(lambda: self.prevTabBtnEvent())
+        self.ui.next_tab_button.clicked.connect(lambda: self.tabChange(self.ui.tab_1, self.ui.bot_frame_1, self.ui.button_frame_1, self.ui.timer_1, 1))
+        self.ui.next_tab_button_1.clicked.connect(lambda: self.tabChange(self.ui.tab_0, self.ui.bot_frame, self.ui.button_frame, self.ui.timer, 0))
+        self.ui.prev_tab_button.clicked.connect(lambda: self.tabChange(self.ui.tab_1, self.ui.bot_frame_1, self.ui.button_frame_1, self.ui.timer_1, 1))
+        self.ui.prev_tab_button_1.clicked.connect(lambda: self.tabChange(self.ui.tab_0, self.ui.bot_frame, self.ui.button_frame, self.ui.timer, 0))
+        self.ui.next_tab_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.next_tab_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.prev_tab_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.prev_tab_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.ui.tabs[0].close_button.clicked.connect(lambda: self.closeBtnEvent())
-        self.ui.tabs[0].close_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.tabs[1].close_button.clicked.connect(lambda: self.closeBtnEvent())
-        self.ui.tabs[1].close_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.close_button.clicked.connect(lambda: self.closeBtnEvent())
+        self.ui.close_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.close_button_1.clicked.connect(lambda: self.closeBtnEvent())
+        self.ui.close_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.ui.tabs[0].minimize_button.clicked.connect(lambda: self.minimizeBtnEvent())
-        self.ui.tabs[0].minimize_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.tabs[1].minimize_button.clicked.connect(lambda: self.minimizeBtnEvent())
-        self.ui.tabs[1].minimize_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.minimize_button.clicked.connect(lambda: self.minimizeBtnEvent())
+        self.ui.minimize_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.minimize_button_1.clicked.connect(lambda: self.minimizeBtnEvent())
+        self.ui.minimize_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.ui.tabs[0].pause_button.clicked.connect(lambda: self.pauseBtnEvent(self.ui.tabs[0].pause_button))
-        self.ui.tabs[0].pause_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.tabs[1].pause_button.clicked.connect(lambda: self.pauseBtnEvent(self.ui.tabs[1].pause_button))
-        self.ui.tabs[1].pause_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.pause_button.clicked.connect(lambda: self.pauseBtnEvent(self.ui.pause_button))
+        self.ui.pause_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.pause_button_1.clicked.connect(lambda: self.pauseBtnEvent(self.ui.pause_button_1))
+        self.ui.pause_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
         self.lastFlag = None
-        self.ui.tabs[0].flag_button.clickSignal.connect(self.flagClickedSlot)
-        self.ui.tabs[0].flag_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.tabs[1].flag_button.clickSignal.connect(self.flagClickedSlot)
-        self.ui.tabs[1].flag_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.flag_button.clickedSignal.connect(self.flagClickedSlot)
+        self.ui.flag_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.flag_button_1.clickedSignal.connect(self.flagClickedSlot)
+        self.ui.flag_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
-        self.ui.tabs[0].restart_button.clicked.connect(lambda: self.restartBtnEvent())
-        self.ui.tabs[0].restart_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.tabs[1].restart_button.clicked.connect(lambda: self.restartBtnEvent())
-        self.ui.tabs[1].restart_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.restart_button.clicked.connect(lambda: self.restartBtnEvent(self.ui.pause_button))
+        self.ui.restart_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.restart_button_1.clicked.connect(lambda: self.restartBtnEvent(self.ui.pause_button_1))
+        self.ui.restart_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
+
+        self.ui.hours_up_button.clicked.connect(lambda: self.timerChoseHoursEvent(self.ui.hours_label, 1))
+        self.ui.hours_up_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.minutes_up_button.clicked.connect(lambda: self.timerChoseEvent(self.ui.minutes_label, 1))
+        self.ui.minutes_up_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.seconds_up_button.clicked.connect(lambda: self.timerChoseEvent(self.ui.seconds_label, 1))
+        self.ui.seconds_up_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+
+        self.ui.hours_down_button.clicked.connect(lambda: self.timerChoseHoursEvent(self.ui.hours_label, -1))
+        self.ui.hours_down_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.minutes_down_button.clicked.connect(lambda: self.timerChoseEvent(self.ui.minutes_label, -1))
+        self.ui.minutes_down_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
+        self.ui.seconds_down_button.clicked.connect(lambda: self.timerChoseEvent(self.ui.seconds_label, -1))
+        self.ui.seconds_down_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
         self.timeStarted = [None, None]
         self.timePaused = [None, None]
@@ -74,6 +100,7 @@ class TimerWindow(QtWidgets.QMainWindow):
 
     def mousePressEvent(self, event):
         self.oldPos = event.globalPos()
+        super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         if self.draggable:
@@ -82,6 +109,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             delta = QtCore.QPoint(event.globalPos() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPos()
+        super().mouseMoveEvent(event)
 
     def setDraggableState(self, state):
         if state == "Press":
@@ -93,43 +121,34 @@ class TimerWindow(QtWidgets.QMainWindow):
         if event == "Leave":
             self.prevSize = self.size()
 
-            self.ui.tabs[self.curTab].button_frame.hide()
+            self.cur_button_frame.hide()
             if self.isBotFrameShown:
-                self.ui.tabs[self.curTab].bot_frame.hide()
+                self.cur_bot_frame.hide()
 
-            self.resize(340, 92)
+            self.resize(340, 94)
             self.setWindowOpacity(self.NO_FOCUS_OPACITY)
 
         elif event == "Enter":
-            self.ui.tabs[self.curTab].button_frame.show()
+            self.cur_button_frame.show()
             if self.isBotFrameShown:
-                self.ui.tabs[self.curTab].bot_frame.show()
+                self.cur_bot_frame.show()
 
             self.resize(self.prevSize)
             self.setWindowOpacity(self.BASE_OPACITY)
 
-    def nextTabBtnEvent(self):
-        self.ui.tabs[self.curTab].hide()
-        self.curTab = (self.curTab + 1) % len(self.ui.tabs)
-
-        self.ui.tabs[self.curTab].show()
+    def tabChange(self, next_tab: QFrame, next_bot_frame: QFrame, next_button_frame: QFrame, next_timer: QLabel, ind: int) -> None:
+        self.cur_tab.hide()
+        next_tab.show()
         if self.isBotFrameShown:
-            self.ui.tabs[self.curTab].bot_frame.show()
+            next_bot_frame.show()
         else:
-            self.ui.tabs[self.curTab].bot_frame.hide()
-            self.isBotFrameShown = False
+            next_bot_frame.hide()
 
-    def prevTabBtnEvent(self):
-        self.ui.tabs[self.curTab].hide()
-        self.curTab -= 1
-        if self.curTab == -1: self.curTab = len(self.ui.tabs)-1
-
-        self.ui.tabs[self.curTab].show()
-        if self.isBotFrameShown:
-            self.ui.tabs[self.curTab].bot_frame.show()
-        else:
-            self.ui.tabs[self.curTab].bot_frame.hide()
-            self.isBotFrameShown = False
+        self.cur_tab = next_tab
+        self.cur_bot_frame = next_bot_frame
+        self.cur_button_frame = next_button_frame
+        self.cur_timer = next_timer
+        self.cur_tab_ind = ind
 
     def closeBtnEvent(self):
         self.close()
@@ -138,31 +157,31 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.showMinimized()
 
     def pauseBtnEvent(self, btn):
-        if self.isPaused[self.curTab]:
-            pauseTime = datetime.now() - self.timePaused[self.curTab]
-            self.timeStarted[self.curTab] = self.timeStarted[self.curTab] + pauseTime
-            self.isPaused[self.curTab] = False
+        if self.isPaused[self.cur_tab_ind]:
+            pauseTime = datetime.now() - self.timePaused[self.cur_tab_ind]
+            self.timeStarted[self.cur_tab_ind] = self.timeStarted[self.cur_tab_ind] + pauseTime
+            self.isPaused[self.cur_tab_ind] = False
             btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
 
-        elif self.timeStarted[self.curTab]:
-            self.timePaused[self.curTab] = datetime.now()
-            self.isPaused[self.curTab] = True
+        elif self.timeStarted[self.cur_tab_ind]:
+            self.timePaused[self.cur_tab_ind] = datetime.now()
+            self.isPaused[self.cur_tab_ind] = True
             btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
         else:
-            self.timeStarted[self.curTab] = datetime.now()
+            self.timeStarted[self.cur_tab_ind] = datetime.now()
             btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
 
     @QtCore.pyqtSlot(str)
     def flagClickedSlot(self, mouseBtnClicked):
         if mouseBtnClicked == "Left":
             # curFlag
-            if self.timeStarted[self.curTab] is None:
+            if self.timeStarted[self.cur_tab_ind] is None:
                 return
-            if self.isPaused[self.curTab]:
-                curFlag = self.timePaused[self.curTab] - self.timeStarted[self.curTab]
+            if self.isPaused[self.cur_tab_ind]:
+                curFlag = self.timePaused[self.cur_tab_ind] - self.timeStarted[self.cur_tab_ind]
             else:
-                curFlag = datetime.now() - self.timeStarted[self.curTab]
+                curFlag = datetime.now() - self.timeStarted[self.cur_tab_ind]
 
             # deltaTime
             if self.lastFlag is None or self.lastFlag == curFlag:
@@ -179,7 +198,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             dTLable.setFont(font)
             dTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
 
-            self.ui.tabs[self.curTab].time_Layout.insertWidget(0, dTLable)
+            self.ui.time_layout.insertWidget(0, dTLable)
 
             # allTime
             allTime = str(curFlag)
@@ -189,12 +208,12 @@ class TimerWindow(QtWidgets.QMainWindow):
             aTLable.setFont(font)
             aTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
 
-            self.ui.tabs[self.curTab].all_Layout.insertWidget(0, aTLable)
+            self.ui.all_layout.insertWidget(0, aTLable)
 
         elif mouseBtnClicked == "Right":
             if self.isBotFrameShown:
                 self.isBotFrameShown = False
-                self.ui.tabs[self.curTab].bot_frame.hide()
+                self.cur_bot_frame.hide()
 
                 self.resize(340, 142)
                 # self.setFixedSize(340, 142)
@@ -202,36 +221,54 @@ class TimerWindow(QtWidgets.QMainWindow):
             else:
                 self.isBotFrameShown = True
                 self.resize(340, 300)
-                self.ui.tabs[self.curTab].bot_frame.show()
+                self.cur_bot_frame.show()
 
-    def restartBtnEvent(self):
+    def restartBtnEvent(self, pause_button) -> None:
 
-        self.timeStarted[self.curTab] = None
-        self.timePaused[self.curTab] = None
-        self.isPaused[self.curTab] = False
+        self.timeStarted[self.cur_tab_ind] = None
+        self.timePaused[self.cur_tab_ind] = None
+        self.isPaused[self.cur_tab_ind] = False
 
         self.lastFlag = None
 
-        for i in reversed(range(self.ui.tabs[self.curTab].time_Layout.count())):
-            timeWidgetToRemove = self.ui.tabs[self.curTab].time_Layout.itemAt(i).widget()
-            allWidgetToRemove = self.ui.tabs[self.curTab].all_Layout.itemAt(i).widget()
+        for i in reversed(range(self.ui.time_layout.count())):
+            timeWidgetToRemove = self.ui.time_layout.itemAt(i).widget()
+            allWidgetToRemove = self.ui.all_layout.itemAt(i).widget()
             # remove it from the layout list
-            self.ui.tabs[self.curTab].time_Layout.removeWidget(timeWidgetToRemove)
-            self.ui.tabs[self.curTab].all_Layout.removeWidget(allWidgetToRemove)
+            self.ui.time_layout.removeWidget(timeWidgetToRemove)
+            self.ui.all_layout.removeWidget(allWidgetToRemove)
             # remove it from the gui
             timeWidgetToRemove.setParent(None)
             allWidgetToRemove.setParent(None)
 
-        self.ui.tabs[self.curTab].pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
+        pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
+
+    def timerChoseHoursEvent(self, label: QLabel, increment: int) -> None:
+        if label.text() == "00" and increment == -1:
+            t = "23"
+        elif label.text() == "23" and increment == 1:
+            t = "00"
+        else:
+            t = f"{int(label.text()) + increment:02d}"
+        label.setText(t)
+
+    def timerChoseEvent(self, label: QLabel, increment: int) -> None:
+        if label.text() == "00" and increment == -1:
+            t = "59"
+        elif label.text() == "59" and increment == 1:
+            t = "00"
+        else:
+            t = f"{int(label.text()) + increment:02d}"
+        label.setText(t)
 
     def showTime(self):
-        if self.isPaused[self.curTab] is False:
-            if self.timeStarted[self.curTab] is None:
-                self.ui.tabs[self.curTab].timer.setText(str(timedelta()))
+        if self.isPaused[self.cur_tab_ind] is False:
+            if self.timeStarted[self.cur_tab_ind] is None:
+                self.cur_timer.setText(str(timedelta()))
             else:
-                t = str(datetime.now() - self.timeStarted[self.curTab])
+                t = str(datetime.now() - self.timeStarted[self.cur_tab_ind])
                 t = t[:t.find(".") + 3]
-                self.ui.tabs[self.curTab].timer.setText(t)
+                self.cur_timer.setText(t)
 
 
 if __name__ == "__main__":

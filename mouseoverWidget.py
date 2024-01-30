@@ -11,6 +11,8 @@ class MouseoverWidget(QtWidgets.QWidget):
 
     def enterEvent(self, event):
         self.mouseoverEvent.emit("Enter")
+        super().enterEvent(event)
 
     def leaveEvent(self, event):
         self.mouseoverEvent.emit("Leave")
+        super().leaveEvent(event)
