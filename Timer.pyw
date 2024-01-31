@@ -112,7 +112,8 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.isPaused = [False, False]
 
         timer = QtCore.QTimer(self)
-        timer.timeout.connect(self.showTime)
+        timer.timeout.connect(self.showStopwatch)
+        timer.timeout.connect(self.showTimer)
         timer.start(50)
 
     def mousePressEvent(self, event):
@@ -186,8 +187,14 @@ class TimerWindow(QtWidgets.QMainWindow):
             btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
         else:
-            self.timeStarted[self.cur_tab_ind] = datetime.now()
-            btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
+            if self.cur_tab_ind == 1:
+                self.timedelta = timedelta(hours=int(self.ui.hours_label.text()), minutes=int(self.ui.minutes_label.text()), seconds=int(self.ui.seconds_label.text()))
+                if timedelta.seconds != 0:
+                    self.timeStarted[self.cur_tab_ind] = datetime.now()
+                    btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
+            else:
+                self.timeStarted[self.cur_tab_ind] = datetime.now()
+                btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
 
     @QtCore.pyqtSlot(str)
     def flagClickedSlot(self, mouseBtnClicked):
@@ -261,14 +268,12 @@ class TimerWindow(QtWidgets.QMainWindow):
         pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
     def timerStartHoldingEvent(self, label: QLabel, increment: int) -> None:
-        print("mousePressEvent")
         self.isTriggeredOnce = False
         self.cur_timer_label = label
         self.cur_timer_increment = increment
         self.holding_timer.start(200)
 
     def timerReleaseEvent(self, label: QLabel, increment: int) -> None:
-        print("mouseReleaseEvent")
         self.holding_timer.stop()
         if self.isTriggeredOnce is False:
             self.timerUpdate(label, increment)
@@ -291,14 +296,27 @@ class TimerWindow(QtWidgets.QMainWindow):
                 t = f"{int(label.text()) + increment:02d}"
         label.setText(t)
 
-    def showTime(self):
-        if self.isPaused[self.cur_tab_ind] is False:
-            if self.timeStarted[self.cur_tab_ind] is None:
-                self.cur_timer.setText(str(timedelta()))
+    def showStopwatch(self):
+        if self.isPaused[0] is False:
+            if self.timeStarted[0] is None:
+                self.ui.timer.setText(str(timedelta()))
             else:
-                t = str(datetime.now() - self.timeStarted[self.cur_tab_ind])
-                t = t[:t.find(".") + 3]
-                self.cur_timer.setText(t)
+                time = datetime.now() - self.timeStarted[0]
+                t = f"{time.seconds // 3600:01d}:{(time.seconds // 60) % 60:02d}:{time.seconds % 60:02d}.{time.microseconds // 10000:02d}"
+                self.ui.timer.setText(t)
+
+    def showTimer(self):
+        if self.isPaused[1] is False:
+            if self.timeStarted[1] is None:
+                self.ui.timer_1.setText(str(timedelta()))
+            else:
+                time = self.timedelta - (datetime.now() - self.timeStarted[1])
+                if time < timedelta():
+                    self.restartBtnEvent(self.ui.pause_button_1)
+                else:
+                    # t = str(self.timedelta - (datetime.now() - self.timeStarted[self.cur_tab_ind]))
+                    t = f"{time.seconds // 3600:01d}:{(time.seconds // 60) % 60:02d}:{time.seconds % 60:02d}.{time.microseconds // 10000:02d}"
+                    self.ui.timer_1.setText(t)
 
 
 if __name__ == "__main__":
