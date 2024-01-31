@@ -249,17 +249,19 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.timePaused[self.cur_tab_ind] = None
         self.isPaused[self.cur_tab_ind] = False
 
-        self.lastFlag = None
+        if self.cur_tab_ind == 0:
 
-        for i in reversed(range(self.ui.time_layout.count())):
-            timeWidgetToRemove = self.ui.time_layout.itemAt(i).widget()
-            allWidgetToRemove = self.ui.all_layout.itemAt(i).widget()
-            # remove it from the layout list
-            self.ui.time_layout.removeWidget(timeWidgetToRemove)
-            self.ui.all_layout.removeWidget(allWidgetToRemove)
-            # remove it from the gui
-            timeWidgetToRemove.setParent(None)
-            allWidgetToRemove.setParent(None)
+            self.lastFlag = None
+
+            for i in reversed(range(self.ui.time_layout.count())):
+                timeWidgetToRemove = self.ui.time_layout.itemAt(i).widget()
+                allWidgetToRemove = self.ui.all_layout.itemAt(i).widget()
+                # remove it from the layout list
+                self.ui.time_layout.removeWidget(timeWidgetToRemove)
+                self.ui.all_layout.removeWidget(allWidgetToRemove)
+                # remove it from the gui
+                timeWidgetToRemove.setParent(None)
+                allWidgetToRemove.setParent(None)
 
         pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
 
