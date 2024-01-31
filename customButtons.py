@@ -18,18 +18,20 @@ class NotDraggableButton(QtWidgets.QPushButton):
 
 
 class FlagButton(NotDraggableButton):
-    __clickedSig = QtCore.pyqtSignal(str)
+    __clickedLeftSig = QtCore.pyqtSignal()
+    __clickedRightSig = QtCore.pyqtSignal()
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.clickedSignal = self.__clickedSig
+        self.clickedLeftSignal = self.__clickedLeftSig
+        self.clickedRightSignal = self.__clickedRightSig
 
     def mouseReleaseEvent(self, QMouseEvent):
         if QMouseEvent.button() == QtCore.Qt.LeftButton:
-            self.clickedSignal.emit("Left")
+            self.clickedLeftSignal.emit()
 
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
-            self.clickedSignal.emit("Right")
+            self.clickedRightSignal.emit()
         super().mouseReleaseEvent(QMouseEvent)
 
 

@@ -69,9 +69,10 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui.pause_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
         self.lastFlag = None
-        self.ui.flag_button.clickedSignal.connect(self.flagClickedSlot)
+        self.ui.flag_button.clickedLeftSignal.connect(self.flagClickedLeftEvent)
+        self.ui.flag_button.clickedRightSignal.connect(self.flagClickedRightEvent)
         self.ui.flag_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.flag_button_1.clickedSignal.connect(self.flagClickedSlot)
+        self.ui.flag_button_1.clickedRightSignal.connect(self.flagClickedRightEvent)
         self.ui.flag_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
         self.ui.restart_button.clicked.connect(lambda: self.restartBtnEvent(self.ui.pause_button))
@@ -189,63 +190,58 @@ class TimerWindow(QtWidgets.QMainWindow):
         else:
             if self.cur_tab_ind == 1:
                 self.timedelta = timedelta(hours=int(self.ui.hours_label.text()), minutes=int(self.ui.minutes_label.text()), seconds=int(self.ui.seconds_label.text()))
-                if timedelta.seconds != 0:
+                if self.timedelta.seconds != 0:
                     self.timeStarted[self.cur_tab_ind] = datetime.now()
-                    btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
+                    btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
             else:
                 self.timeStarted[self.cur_tab_ind] = datetime.now()
                 btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
 
-    @QtCore.pyqtSlot(str)
-    def flagClickedSlot(self, mouseBtnClicked):
-        if mouseBtnClicked == "Left":
-            # curFlag
-            if self.timeStarted[self.cur_tab_ind] is None:
-                return
-            if self.isPaused[self.cur_tab_ind]:
-                curFlag = self.timePaused[self.cur_tab_ind] - self.timeStarted[self.cur_tab_ind]
-            else:
-                curFlag = datetime.now() - self.timeStarted[self.cur_tab_ind]
+    def flagClickedLeftEvent(self):
+        # curFlag
+        if self.timeStarted[self.cur_tab_ind] is None:
+            return
+        if self.isPaused[self.cur_tab_ind]:
+            curFlag = self.timePaused[self.cur_tab_ind] - self.timeStarted[self.cur_tab_ind]
+        else:
+            curFlag = datetime.now() - self.timeStarted[self.cur_tab_ind]
 
-            # deltaTime
-            if self.lastFlag is None or self.lastFlag == curFlag:
-                deltaTime = str(timedelta())
-            else:
-                deltaTime = str(curFlag - self.lastFlag)
-                deltaTime = deltaTime[:deltaTime.find(".") + 3]
-            self.lastFlag = curFlag
+        # deltaTime
+        if self.lastFlag is None or self.lastFlag == curFlag:
+            deltaTime = str(timedelta())
+        else:
+            deltaTime = str(curFlag - self.lastFlag)
+            deltaTime = deltaTime[:deltaTime.find(".") + 3]
+        self.lastFlag = curFlag
 
-            dTLable = QtWidgets.QLabel(deltaTime)
-            dTLable.setAlignment(QtCore.Qt.AlignCenter)
-            font = QtGui.QFont()
-            font.setPointSize(14)
-            dTLable.setFont(font)
-            dTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        dTLable = QtWidgets.QLabel(deltaTime)
+        dTLable.setAlignment(QtCore.Qt.AlignCenter)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        dTLable.setFont(font)
+        dTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
 
-            self.ui.time_layout.insertWidget(0, dTLable)
+        self.ui.time_layout.insertWidget(0, dTLable)
 
-            # allTime
-            allTime = str(curFlag)
-            allTime = allTime[:allTime.find(".") + 3]
-            aTLable = QtWidgets.QLabel(allTime)
-            aTLable.setAlignment(QtCore.Qt.AlignCenter)
-            aTLable.setFont(font)
-            aTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        # allTime
+        allTime = str(curFlag)
+        allTime = allTime[:allTime.find(".") + 3]
+        aTLable = QtWidgets.QLabel(allTime)
+        aTLable.setAlignment(QtCore.Qt.AlignCenter)
+        aTLable.setFont(font)
+        aTLable.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
 
-            self.ui.all_layout.insertWidget(0, aTLable)
+        self.ui.all_layout.insertWidget(0, aTLable)
 
-        elif mouseBtnClicked == "Right":
-            if self.isBotFrameShown:
-                self.isBotFrameShown = False
-                self.cur_bot_frame.hide()
-
-                self.resize(340, 142)
-                # self.setFixedSize(340, 142)
-
-            else:
-                self.isBotFrameShown = True
-                self.resize(340, 300)
-                self.cur_bot_frame.show()
+    def flagClickedRightEvent(self):
+        if self.isBotFrameShown:
+            self.isBotFrameShown = False
+            self.cur_bot_frame.hide()
+            self.resize(340, 142)
+        else:
+            self.isBotFrameShown = True
+            self.resize(340, 300)
+            self.cur_bot_frame.show()
 
     def restartBtnEvent(self, pause_button) -> None:
 
