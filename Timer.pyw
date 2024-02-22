@@ -21,7 +21,7 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         self.setWindowOpacity(self.BASE_OPACITY)
-        self.setStyleSheet(f"background-color: rgb({self.WINDOW_COLOR});")
+        self.ui.centralwidget.setStyleSheet(f"background-color: rgb({self.WINDOW_COLOR});")
         self.ui.timer.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
         self.ui.all_label.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
         self.ui.time_label.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
