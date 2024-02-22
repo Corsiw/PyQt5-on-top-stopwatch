@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QFrame, QLabel
 
 from ui import Ui_MainWindow
 from configuration import Configuration
-from os import getcwd
 
 
 class TimerWindow(QtWidgets.QMainWindow):
@@ -21,8 +20,20 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.ui.tab_1.hide()
+        self.setWindowOpacity(self.BASE_OPACITY)
+        self.ui.centralwidget.setStyleSheet(f"background-color: rgb({self.WINDOW_COLOR});")
+        self.ui.timer.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        self.ui.all_label.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        self.ui.time_label.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        self.ui.timer_1.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        self.ui.hours_label.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        self.ui.colon_label_0.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        self.ui.minutes_label.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        self.ui.colon_label_1.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+        self.ui.seconds_label.setStyleSheet(f"color: rgb({self.TEXT_COLOR});")
+
         self.ui.tab_0.show()
+        self.ui.tab_1.hide()
 
         self.ui.bot_frame.hide()
         self.ui.bot_frame_1.hide()
@@ -38,7 +49,7 @@ class TimerWindow(QtWidgets.QMainWindow):
 
         self.isBotFrameShown = False
         self.setMinimumSize(340, 94)
-        self.resize(340, 142)  # 340, 142
+        self.resize(340, 142)  # Default 340, 142
         self.prevSize = self.size()
         self.oldPos = None
         self.draggable = True
@@ -180,22 +191,22 @@ class TimerWindow(QtWidgets.QMainWindow):
             pauseTime = datetime.now() - self.timePaused[self.cur_tab_ind]
             self.timeStarted[self.cur_tab_ind] = self.timeStarted[self.cur_tab_ind] + pauseTime
             self.isPaused[self.cur_tab_ind] = False
-            btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
+            btn.setIcon(QtGui.QIcon('Icons\pause.png'))
 
         elif self.timeStarted[self.cur_tab_ind]:
             self.timePaused[self.cur_tab_ind] = datetime.now()
             self.isPaused[self.cur_tab_ind] = True
-            btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
+            btn.setIcon(QtGui.QIcon('Icons\play-button-arrowhead.png'))
 
         else:
             if self.cur_tab_ind == 1:
                 self.timedelta = timedelta(hours=int(self.ui.hours_label.text()), minutes=int(self.ui.minutes_label.text()), seconds=int(self.ui.seconds_label.text()))
                 if self.timedelta.seconds != 0:
                     self.timeStarted[self.cur_tab_ind] = datetime.now()
-                    btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
+                    btn.setIcon(QtGui.QIcon('Icons\pause.png'))
             else:
                 self.timeStarted[self.cur_tab_ind] = datetime.now()
-                btn.setIcon(QtGui.QIcon(getcwd() + '\Icons\pause.png'))
+                btn.setIcon(QtGui.QIcon('Icons\pause.png'))
 
     def flagClickedLeftEvent(self):
         # curFlag
@@ -263,7 +274,7 @@ class TimerWindow(QtWidgets.QMainWindow):
                 timeWidgetToRemove.setParent(None)
                 allWidgetToRemove.setParent(None)
 
-        pause_button.setIcon(QtGui.QIcon(getcwd() + '\Icons\play-button-arrowhead.png'))
+        pause_button.setIcon(QtGui.QIcon('Icons\play-button-arrowhead.png'))
 
     def timerStartHoldingEvent(self, label: QLabel, increment: int) -> None:
         self.isTriggeredOnce = False
