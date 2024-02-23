@@ -80,10 +80,10 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.ui.pause_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
         self.lastFlag = None
-        self.ui.flag_button.clickedLeftSignal.connect(self.flagClickedLeftEvent)
-        self.ui.flag_button.clickedRightSignal.connect(self.flagClickedRightEvent)
+        self.ui.flag_button.clickedLeftSignal.connect(self.flagBtnClickedLeftEvent)
+        self.ui.flag_button.clickedRightSignal.connect(self.flagBtnClickedRightEvent)
         self.ui.flag_button.draggedSignal.connect(lambda state: self.setDraggableState(state))
-        self.ui.flag_button_1.clickedRightSignal.connect(self.flagClickedRightEvent)
+        self.ui.flag_button_1.clickedRightSignal.connect(self.flagBtnClickedRightEvent)
         self.ui.flag_button_1.draggedSignal.connect(lambda state: self.setDraggableState(state))
 
         self.ui.restart_button.clicked.connect(lambda: self.restartBtnEvent(self.ui.pause_button))
@@ -128,11 +128,11 @@ class TimerWindow(QtWidgets.QMainWindow):
         timer.timeout.connect(self.showTimer)
         timer.start(50)
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event) -> None:
         self.oldPos = event.globalPos()
         super().mousePressEvent(event)
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event) -> None:
         if self.draggable:
             if self.oldPos is None:
                 self.oldPos = event.globalPos()
@@ -141,13 +141,13 @@ class TimerWindow(QtWidgets.QMainWindow):
             self.oldPos = event.globalPos()
         super().mouseMoveEvent(event)
 
-    def setDraggableState(self, state):
+    def setDraggableState(self, state) -> None:
         if state == "Press":
             self.draggable = False
         elif state == "Leave":
             self.draggable = True
 
-    def mouseoverEvent(self, event):
+    def mouseoverEvent(self, event) -> None:
         if event == "Leave":
             self.prevSize = self.size()
 
@@ -180,35 +180,35 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.cur_timer = next_timer
         self.cur_tab_ind = ind
 
-    def closeBtnEvent(self):
+    def closeBtnEvent(self) -> None:
         self.close()
 
-    def minimizeBtnEvent(self):
+    def minimizeBtnEvent(self) -> None:
         self.showMinimized()
 
-    def pauseBtnEvent(self, btn):
+    def pauseBtnEvent(self, btn) -> None:
         if self.isPaused[self.cur_tab_ind]:
             pauseTime = datetime.now() - self.timePaused[self.cur_tab_ind]
             self.timeStarted[self.cur_tab_ind] = self.timeStarted[self.cur_tab_ind] + pauseTime
             self.isPaused[self.cur_tab_ind] = False
-            btn.setIcon(QtGui.QIcon('Icons\pause.png'))
+            btn.setIcon(QtGui.QIcon("Icons\pause.png"))
 
         elif self.timeStarted[self.cur_tab_ind]:
             self.timePaused[self.cur_tab_ind] = datetime.now()
             self.isPaused[self.cur_tab_ind] = True
-            btn.setIcon(QtGui.QIcon('Icons\play-button-arrowhead.png'))
+            btn.setIcon(QtGui.QIcon("Icons\play-button-arrowhead.png"))
 
         else:
             if self.cur_tab_ind == 1:
                 self.timedelta = timedelta(hours=int(self.ui.hours_label.text()), minutes=int(self.ui.minutes_label.text()), seconds=int(self.ui.seconds_label.text()))
                 if self.timedelta.seconds != 0:
                     self.timeStarted[self.cur_tab_ind] = datetime.now()
-                    btn.setIcon(QtGui.QIcon('Icons\pause.png'))
+                    btn.setIcon(QtGui.QIcon("Icons\pause.png"))
             else:
                 self.timeStarted[self.cur_tab_ind] = datetime.now()
-                btn.setIcon(QtGui.QIcon('Icons\pause.png'))
+                btn.setIcon(QtGui.QIcon("Icons\pause.png"))
 
-    def flagClickedLeftEvent(self):
+    def flagBtnClickedLeftEvent(self) -> None:
         # curFlag
         if self.timeStarted[self.cur_tab_ind] is None:
             return
@@ -222,7 +222,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             deltaTime = str(timedelta())
         else:
             deltaTime = str(curFlag - self.lastFlag)
-            deltaTime = deltaTime[:deltaTime.find(".") + 3]
+            deltaTime = deltaTime[: deltaTime.find(".") + 3]
         self.lastFlag = curFlag
 
         dTLable = QtWidgets.QLabel(deltaTime)
@@ -236,7 +236,7 @@ class TimerWindow(QtWidgets.QMainWindow):
 
         # allTime
         allTime = str(curFlag)
-        allTime = allTime[:allTime.find(".") + 3]
+        allTime = allTime[: allTime.find(".") + 3]
         aTLable = QtWidgets.QLabel(allTime)
         aTLable.setAlignment(QtCore.Qt.AlignCenter)
         aTLable.setFont(font)
@@ -244,7 +244,7 @@ class TimerWindow(QtWidgets.QMainWindow):
 
         self.ui.all_layout.insertWidget(0, aTLable)
 
-    def flagClickedRightEvent(self):
+    def flagBtnClickedRightEvent(self) -> None:
         if self.isBotFrameShown:
             self.isBotFrameShown = False
             self.cur_bot_frame.hide()
@@ -255,13 +255,11 @@ class TimerWindow(QtWidgets.QMainWindow):
             self.cur_bot_frame.show()
 
     def restartBtnEvent(self, pause_button) -> None:
-
         self.timeStarted[self.cur_tab_ind] = None
         self.timePaused[self.cur_tab_ind] = None
         self.isPaused[self.cur_tab_ind] = False
 
         if self.cur_tab_ind == 0:
-
             self.lastFlag = None
 
             for i in reversed(range(self.ui.time_layout.count())):
@@ -274,7 +272,7 @@ class TimerWindow(QtWidgets.QMainWindow):
                 timeWidgetToRemove.setParent(None)
                 allWidgetToRemove.setParent(None)
 
-        pause_button.setIcon(QtGui.QIcon('Icons\play-button-arrowhead.png'))
+        pause_button.setIcon(QtGui.QIcon("Icons\play-button-arrowhead.png"))
 
     def timerStartHoldingEvent(self, label: QLabel, increment: int) -> None:
         self.isTriggeredOnce = False
@@ -289,6 +287,9 @@ class TimerWindow(QtWidgets.QMainWindow):
 
     def timerUpdate(self, label: QLabel, increment: int) -> None:
         self.isTriggeredOnce = True
+        if self.holding_timer.interval() > 70:
+            self.holding_timer.setInterval(self.holding_timer.interval() - 10)
+
         if "hours" in label.objectName():
             if label.text() == "00" and increment == -1:
                 t = "23"
@@ -305,7 +306,7 @@ class TimerWindow(QtWidgets.QMainWindow):
                 t = f"{int(label.text()) + increment:02d}"
         label.setText(t)
 
-    def showStopwatch(self):
+    def showStopwatch(self) -> None:
         if self.isPaused[0] is False:
             if self.timeStarted[0] is None:
                 self.ui.timer.setText(str(timedelta()))
@@ -314,7 +315,7 @@ class TimerWindow(QtWidgets.QMainWindow):
                 t = f"{time.seconds // 3600:01d}:{(time.seconds // 60) % 60:02d}:{time.seconds % 60:02d}.{time.microseconds // 10000:02d}"
                 self.ui.timer.setText(t)
 
-    def showTimer(self):
+    def showTimer(self) -> None:
         if self.isPaused[1] is False:
             if self.timeStarted[1] is None:
                 self.ui.timer_1.setText(str(timedelta()))
