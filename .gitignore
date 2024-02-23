@@ -26,7 +26,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-#fVS Code
+# VS Code
 .vscode
 
 # Ruff
